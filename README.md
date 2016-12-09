@@ -12,7 +12,7 @@ Native numbers are encoded as is, using architecture-dependent representations, 
 
 ## Requirements
 
-Swift 3.0 Preview 6
+Swift 3.0
 
 ## Design
 

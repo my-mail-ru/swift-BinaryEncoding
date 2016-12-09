@@ -169,11 +169,13 @@ public extension BinaryEncodedData {
 	}
 
 	mutating func write<S : LengthItem>(_ value: BinaryEncodedData, withSizeOf: S.Type, at offset: inout Int) {
-		writeWrapper(at: &offset, size: value.count) { try $0.write(value, withSizeOf: S.self) }
+		let size = MemoryLayout<S>.size + value.count
+		writeWrapper(at: &offset, size: size) { try $0.write(value, withSizeOf: S.self) }
 	}
 
 	mutating func write(_ value: BinaryEncodedData, withSizeOf: VarUInt.Type, at offset: inout Int) {
-		writeWrapper(at: &offset, size: value.count) { try $0.write(value, withSizeOf: VarUInt.self) }
+		let size = VarUInt.maxSize + value.count
+		writeWrapper(at: &offset, size: size) { try $0.write(value, withSizeOf: VarUInt.self) }
 	}
 
 	mutating func write(_ value: String, as: String.Type, at offset: inout Int) {
