@@ -4,22 +4,19 @@
 ![OS: Linux](https://img.shields.io/badge/OS-Linux-brightgreen.svg)
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 
-The BinaryEncoding library is designed to simplify encoding/decoding of native Swift types and their sequences into binary data buffer.
+The BinaryEncoding library is designed to simplify encoding/decoding of native Swift types and their sequences into binary data buffers.
 
 Supported types are: `Int`, `UInt`, `Int*`, `UInt*`, `Float`, `Double`, `VarUInt`, `String` and various collections of native numbers.
 Native numbers are encoded as is, using architecture-dependent representations, strings are encoded in UTF-8.
-`VarUInt`'s encoding is equal to Perl's `w` format of `pack` function.
+`VarUInt` encoding is equal to `w` format of Perl `pack` function.
 
 ## Requirements
 
-Swift 3.0
+Swift 3.0.1
 
 ## Design
 
-The library provides 3 structures to store bytes in:
-* `BinaryEncodedData` - managed buffer of raw bytes with copy-on-write behaviour
-* `UnsafeBufferRawPointer` - it's like `UnsafeBufferPointer` but points to `UnsafeRawPointer`
-* `UnsafeMutableBufferRawPointer` - it's like `UnsafeMutableBufferPointer` but points to `UnsafeMutableRawPointer`
+The library provides managed buffers of raw bytes with copy-on-write behaviour.
 
 ### BinaryEncodedData
 
@@ -60,6 +57,6 @@ Has various `read`, `write` and `append` methods for all supported types:
 
 Usage examples can be found in [tests](Tests/BinaryEncodingTests/Data.swift).
 
-### UnsafeBufferRawPointer and UnsafeMutableBufferRawPointer
+### UnsafeRawBufferPointer.Reader and UnsafeMutableRawBufferPointer.Writer
 
-These interfaces are unsafe. If you want to use them for effeciency you can find enough infromation in source code.
+These interfaces are unsafe. If you want to use them for effeciency you can find enough infromation in the source code.

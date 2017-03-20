@@ -1,18 +1,4 @@
-public struct UnsafeBufferRawPointer {
-	public let baseAddress: UnsafeRawPointer?
-	public let count: Int
-
-	public init(start: UnsafeRawPointer?, count: Int) {
-		precondition(start != nil || count == 0)
-		baseAddress = start
-		self.count = count
-	}
-
-	public init<T>(_ typed: UnsafeBufferPointer<T>) {
-		baseAddress = UnsafeRawPointer(typed.baseAddress)
-		count = typed.count * MemoryLayout<T>.stride
-	}
-
+extension UnsafeRawBufferPointer {
 	public func reader(offset: Int = 0) -> Reader {
 		precondition(offset < count)
 		return Reader(start: baseAddress! + offset, end: baseAddress! + count)
@@ -47,20 +33,20 @@ public struct UnsafeBufferRawPointer {
 			throw BinaryEncodingError.varintIsTooLong
 		}
 
-		public mutating func read(_: UnsafeBufferRawPointer.Type, withSize: Int) throws -> UnsafeBufferRawPointer {
+		public mutating func read(_: UnsafeRawBufferPointer.Type, withSize: Int) throws -> UnsafeRawBufferPointer {
 			guard start + withSize <= end else { throw BinaryEncodingError.bufferIsTooShort }
 			defer { start += withSize }
-			return UnsafeBufferRawPointer(start: start, count: withSize)
+			return UnsafeRawBufferPointer(start: start, count: withSize)
 		}
 
-		public mutating func read<S : LengthItem>(_: UnsafeBufferRawPointer.Type, withSizeOf: S.Type) throws -> UnsafeBufferRawPointer {
+		public mutating func read<S : LengthItem>(_: UnsafeRawBufferPointer.Type, withSizeOf: S.Type) throws -> UnsafeRawBufferPointer {
 			let size = try read(S.self)
-			return try read(UnsafeBufferRawPointer.self, withSize: numericCast(size))
+			return try read(UnsafeRawBufferPointer.self, withSize: numericCast(size))
 		}
 
-		public mutating func read(_: UnsafeBufferRawPointer.Type, withSizeOf: VarUInt.Type) throws -> UnsafeBufferRawPointer {
+		public mutating func read(_: UnsafeRawBufferPointer.Type, withSizeOf: VarUInt.Type) throws -> UnsafeRawBufferPointer {
 			let size = try read(VarUInt.self)
-			return try read(UnsafeBufferRawPointer.self, withSize: Int(size))
+			return try read(UnsafeRawBufferPointer.self, withSize: Int(size))
 		}
 
 		public mutating func read(_: BinaryEncodedData.Type, withSize: Int) throws -> BinaryEncodedData {
@@ -116,21 +102,7 @@ public struct UnsafeBufferRawPointer {
 	}
 }
 
-public struct UnsafeMutableBufferRawPointer {
-	public let baseAddress: UnsafeMutableRawPointer?
-	public let count: Int
-
-	public init(start: UnsafeMutableRawPointer?, count: Int) {
-		precondition(start != nil || count == 0)
-		baseAddress = start
-		self.count = count
-	}
-
-	public init<T>(_ typed: UnsafeMutableBufferPointer<T>) {
-		baseAddress = UnsafeMutableRawPointer(typed.baseAddress)
-		count = typed.count * MemoryLayout<T>.stride
-	}
-
+extension UnsafeMutableRawBufferPointer {
 	public func writer(offset: Int = 0) -> Writer {
 		precondition(offset < count)
 		return Writer(start: baseAddress! + offset, end: baseAddress! + count)
@@ -171,24 +143,24 @@ public struct UnsafeMutableBufferRawPointer {
 			}
 		}
 
-		public mutating func write(_ value: UnsafeBufferRawPointer) throws {
+		public mutating func write(_ value: UnsafeRawBufferPointer) throws {
 			guard start + value.count <= end else { throw BinaryEncodingError.bufferIsTooShort }
 			start.copyBytes(from: value.baseAddress!, count: value.count)
 			start += value.count
 		}
 
-		public mutating func write<S : LengthItem>(_ value: UnsafeBufferRawPointer, withSizeOf: S.Type) throws {
+		public mutating func write<S : LengthItem>(_ value: UnsafeRawBufferPointer, withSizeOf: S.Type) throws {
 			try write(numericCast(value.count), as: S.self)
 			try write(value)
 		}
 
-		public mutating func write(_ value: UnsafeBufferRawPointer, withSizeOf: VarUInt.Type) throws {
+		public mutating func write(_ value: UnsafeRawBufferPointer, withSizeOf: VarUInt.Type) throws {
 			try write(UInt(value.count), as: VarUInt.self)
 			try write(value)
 		}
 
 		public mutating func write(_ value: BinaryEncodedData) throws {
-			try value.withUnsafeBufferRawPointer { try write($0) }
+			try value.withUnsafeBytes { try write($0) }
 		}
 
 		public mutating func write<S : LengthItem>(_ value: BinaryEncodedData, withSizeOf: S.Type) throws {

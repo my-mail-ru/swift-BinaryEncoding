@@ -75,22 +75,22 @@ public struct BinaryEncodedData {
 		buffer = newBuffer
 	}
 
-	public func withUnsafeBufferRawPointer<R>(_ body: (UnsafeBufferRawPointer) throws -> R) rethrows -> R {
+	public func withUnsafeBytes<R>(_ body: (UnsafeRawBufferPointer) throws -> R) rethrows -> R {
 		return try buffer.withUnsafeMutablePointerToElements {
-			return try body(UnsafeBufferRawPointer(start: UnsafeRawPointer($0), count: count))
+			return try body(UnsafeRawBufferPointer(start: UnsafeRawPointer($0), count: count))
 		}
 	}
 
-	mutating func withUnsafeMutableBufferRawPointer<R>(_ body: (UnsafeMutableBufferRawPointer) throws -> R) rethrows -> R {
+	mutating func withUnsafeMutableBufferRawPointer<R>(_ body: (UnsafeMutableRawBufferPointer) throws -> R) rethrows -> R {
 		return try buffer.withUnsafeMutablePointerToElements {
-			return try body(UnsafeMutableBufferRawPointer(start: UnsafeMutableRawPointer($0), count: capacity))
+			return try body(UnsafeMutableRawBufferPointer(start: UnsafeMutableRawPointer($0), count: capacity))
 		}
 	}
 }
 
 public extension BinaryEncodedData {
-	private func readWrapper<T>(at offset: inout Int, _ body: (inout UnsafeBufferRawPointer.Reader) throws -> T) rethrows -> T {
-		return try withUnsafeBufferRawPointer { buffer in
+	private func readWrapper<T>(at offset: inout Int, _ body: (inout UnsafeRawBufferPointer.Reader) throws -> T) rethrows -> T {
+		return try withUnsafeBytes { buffer in
 			var reader = buffer.reader(offset: offset)
 			defer { offset = reader.start - buffer.baseAddress! }
 			return try body(&reader)
@@ -143,7 +143,7 @@ public extension BinaryEncodedData {
 }
 
 public extension BinaryEncodedData {
-	private mutating func writeWrapper(at offset: inout Int, size: Int, body: (inout UnsafeMutableBufferRawPointer.Writer) throws -> Void) {
+	private mutating func writeWrapper(at offset: inout Int, size: Int, body: (inout UnsafeMutableRawBufferPointer.Writer) throws -> Void) {
 		precondition(offset <= count)
 		ensureUniqueStorage(minimumCapacity: offset + size)
 		withUnsafeMutableBufferRawPointer { buffer in
@@ -270,8 +270,8 @@ public extension BinaryEncodedData {
 extension BinaryEncodedData : Equatable {
 	public static func ==(lhs: BinaryEncodedData, rhs: BinaryEncodedData) -> Bool {
 		if lhs.count != rhs.count { return false }
-		return lhs.withUnsafeBufferRawPointer { lb in
-			return rhs.withUnsafeBufferRawPointer { rb in
+		return lhs.withUnsafeBytes { lb in
+			return rhs.withUnsafeBytes { rb in
 				if lb.baseAddress == rb.baseAddress { return true }
 				return memcmp(lb.baseAddress!, rb.baseAddress!, lb.count) == 0
 			}
@@ -281,7 +281,7 @@ extension BinaryEncodedData : Equatable {
 
 extension BinaryEncodedData : CustomDebugStringConvertible {
 	public var debugDescription: String {
-		let bytes: String = withUnsafeBufferRawPointer {
+		let bytes: String = withUnsafeBytes {
 			let data = UnsafeBufferPointer<UInt8>(start: $0.baseAddress?.assumingMemoryBound(to: UInt8.self), count: count)
 			return data.map { $0 > 0xf ? String($0, radix: 16) : "0" + String($0, radix: 16) }.joined(separator: " ")
 		}
