@@ -1,7 +1,7 @@
 # BinaryEncoding
 
-![Swift: 3.0](https://img.shields.io/badge/Swift-3.0-orange.svg)
-![OS: Linux](https://img.shields.io/badge/OS-Linux-brightgreen.svg)
+![Swift: 4.0](https://img.shields.io/badge/Swift-4.0-orange.svg)
+![OS: Linux | macOS](https://img.shields.io/badge/OS-Linux%20%7C%20macOS-brightgreen.svg)
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 
 The BinaryEncoding library is designed to simplify encoding/decoding of native Swift types and their sequences into binary data buffers.
@@ -12,7 +12,7 @@ Native numbers are encoded as is, using architecture-dependent representations, 
 
 ## Requirements
 
-Swift 3.0.1
+Swift 4.0
 
 ## Design
 

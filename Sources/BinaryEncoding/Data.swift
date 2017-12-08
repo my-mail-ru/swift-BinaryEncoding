@@ -1,4 +1,8 @@
+#if os(Linux) || os(FreeBSD) || os(PS4) || os(Android) || CYGWIN
 import func Glibc.memcmp
+#elseif os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
+import func Darwin.memcmp
+#endif
 
 public struct BinaryEncodedData {
 	private struct Header {
